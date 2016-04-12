@@ -1,0 +1,27 @@
+{
+  "name": "artstationheist",
+  "version": "1.0.0",
+  "description": "A bot written in node js to download artstation.com artworks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "artstation",
+    "download"
+  ],
+  "author": "Touhidur Rahman",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.70.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanimkg/artstationheist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tanimkg/artstationheist/issues"
+  },
+  "homepage": "https://github.com/tanimkg/artstationheist#readme"
+}
