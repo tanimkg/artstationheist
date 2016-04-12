@@ -20,11 +20,7 @@ var page = 1,
 
 	console.log("Accessing www.artstation.com/projects.json?page="+page + '&sorting=' + sorting);
 
-ee.on("singlePageDone", parseSinglePage(page));
 
-	
-
-function parseSinglePage(page){
 
 	request(url + '?page=' + page + '&sorting=' + sorting, function (error, response, body) {
 		if (error) { page = -1; return console.log("Something wrong!");}
@@ -60,6 +56,4 @@ function parseSinglePage(page){
 
 	page += 1;
 
-	ee.emit("singlePageDone");
 
-}
