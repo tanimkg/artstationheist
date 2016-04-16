@@ -2,8 +2,6 @@ var request = require('request'),
 	fs 		= require('fs'),
 	url     = "https://www.artstation.com/projects.json";
 
-var EventEmitter	= require('events').EventEmitter;
-var ee 				= new EventEmitter();
 
 // create assets dir if not available
 var dir = './assets';
@@ -14,46 +12,48 @@ if (!fs.existsSync(dir)){
 }
 
 var page = 1,
+  download = true,
 	sorting = 'latest';		// other possible values: trending,
 
 // entering into while loop for page 1, increase counter 'page' when finished page 1 contents
+var loop = function(){
+  
+  if (download){
+    request({
+      url: url,
+      qs : {page:page, sorting:sorting},
+      method: 'GET'
+    }, function (error, response, body) {
+      console.log("Accessing www.artstation.com/projects.json?page="+page + '&sorting=' + sorting);
+      
+      if (error) { 
+        console.log("Something wrong!"); 
+        loop();
+      } else {
+        // past this point, we have a json object in var body
+        var json = JSON.parse(body);
+        
+        //if (json.data.length == 0) download = false;                // end of pages, stop download
+        
+        for (var i in json.data) {
+          var targetAssetSrc = json.data[i].cover.small_image_url;	  // .replace("/small/", "/large/") replace small with large in URL to grab the largest photo
+          var file = dir + '/' + json.data[i].hash_id + '.jpg'; // so that we can later access the file at www.artstation.com/artwork/{hash_id}
+            
+            if (fs.existsSync(file)) {
+              console.log(file + " file already exists, skipping");
+            } else {
+              console.log("Downloading to "+ file + " from " + targetAssetSrc);
+              request(targetAssetSrc).pipe(fs.createWriteStream(file));
+            }
+          }
+        page++;
+        loop();
+        }
+      });	// end request
+    }
+  console.log("Finished downloading");
+  };
 
-	console.log("Accessing www.artstation.com/projects.json?page="+page + '&sorting=' + sorting);
-
-
-
-	request(url + '?page=' + page + '&sorting=' + sorting, function (error, response, body) {
-		if (error) { page = -1; return console.log("Something wrong!");}
-
-		// past this point, we have a json object in var body
-
-		// entering into second loop to grab each image of current page
-
-		var json = JSON.parse(body);
-
-		for (var i = 0; i < json.data.length; i++) {
-
-			var targetAssetSrc = json.data[i].cover.small_image_url,	// .replace("/small/", "/large/") replace small with large in URL to grab the largest photo
-				toBeFilename = json.data[i].slug;
-
-			if (fs.existsSync(dir+'/'+toBeFilename)) {
-				
-				console.log(toBeFilename + " file already exists, skipping");
-
-			} else {
-
-				console.log("Downloading "+ toBeFilename + " from " + targetAssetSrc);
-
-				request(targetAssetSrc).pipe(fs.createWriteStream(dir+'/'+toBeFilename)); 
-				
-			}
-			
-
-		}	
-	    
-	      
-	});	// end request
-
-	page += 1;
+loop();
 
 
